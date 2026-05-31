@@ -138,7 +138,14 @@ def get_paper(paper_id: str) -> dict:
     """Single paper detail. paper_id format: 'arxiv:1412.6980' or 'openreview:abc123'."""
     with ch_connect() as c:
         p = c.query(
-            "SELECT paper_id, source, title, abstract, submitted_date, citation_count, doi, arxiv_id, authors FROM papers FINAL WHERE paper_id = %(pid)s",
+            """SELECT p.paper_id, p.source,
+                   coalesce(nullIf(m.title, ''), p.title) AS title,
+                   p.abstract, p.submitted_date,
+                   coalesce(nullIf(m.citation_count, 0), p.citation_count) AS citation_count,
+                   p.doi, p.arxiv_id, p.authors
+              FROM papers AS p FINAL
+              LEFT JOIN paper_metadata_v2 AS m FINAL ON m.paper_id = p.paper_id
+              WHERE p.paper_id = %(pid)s""",
             parameters={"pid": paper_id},
         ).result_rows
         if not p:
@@ -375,10 +382,14 @@ def sleepers(
               FROM openreview_reviews WHERE rating IS NOT NULL
               GROUP BY paper_id HAVING n_reviews >= 3
             )
-            SELECT p.paper_id, p.title, par.avg_rating, par.n_reviews,
-                   p.citation_count, par.venue, par.decision, p.submitted_date
+            SELECT p.paper_id,
+                   coalesce(nullIf(m.title, ''), p.title) AS title,
+                   par.avg_rating, par.n_reviews,
+                   coalesce(nullIf(m.citation_count, 0), p.citation_count) AS citation_count,
+                   par.venue, par.decision, p.submitted_date
             FROM par
             JOIN papers p ON p.paper_id = par.paper_id
+            LEFT JOIN paper_metadata_v2 AS m FINAL ON m.paper_id = p.paper_id
             WHERE par.avg_rating >= %(min_rating)s
               AND p.citation_count <= %(max_citations)s
               AND effective_year(p.source, p.arxiv_id, p.submitted_date) >= %(since_year)s
