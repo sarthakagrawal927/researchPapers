@@ -1,7 +1,7 @@
 [project]
 name = "researchpapers"
 version = "0.1.0"
-description = "arXiv ingestion + cited-URLs leaderboard (paper->paper graph via Semantic Scholar deferred to v2)"
+description = "Multi-source academic paper data platform on ClickHouse (arxiv + OpenReview + bioRxiv + medRxiv) with semantic search, citation graph PageRank, and MLX/spaCy auto-tagging."
 authors = [
     { name = "Sarthak Agrawal", email = "sarthakagrawal927@gmail.com" }
 ]
