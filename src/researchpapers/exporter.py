@@ -141,7 +141,7 @@ def export_all(settings: Settings, out_dir: Path, *, top: int = 200) -> list[Pat
         rows = c.query(
             f"""
             SELECT
-                c.title, c.cited_by_count, count(DISTINCT r.citing_paper_id) AS in_corpus_citations,
+                c.title, c.cited_by_count, count(DISTINCT r.citing_arxiv_id) AS in_corpus_citations,
                 c.arxiv_id, c.doi, c.publication_year, c.primary_topic
             FROM references_paper r
             JOIN cited_works c ON c.openalex_id = r.cited_openalex_id
