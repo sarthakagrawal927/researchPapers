@@ -55,7 +55,7 @@ def render() -> str:
 
         # Tag frequency leaderboards
         rows = c.query("""
-            SELECT tagger, count() AS n
+            SELECT tagger, countDistinct(paper_id) AS n
             FROM paper_tags
             GROUP BY tagger
             ORDER BY n DESC
@@ -68,7 +68,7 @@ def render() -> str:
 
         # Top tags overall (from any tagger)
         rows = c.query("""
-            SELECT arrayJoin(tags) AS tag, count() AS n
+            SELECT arrayJoin(tags) AS tag, countDistinct(paper_id) AS n
             FROM paper_tags
             GROUP BY tag
             ORDER BY n DESC
